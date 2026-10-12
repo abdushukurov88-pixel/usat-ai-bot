@@ -14,7 +14,7 @@ http.createServer((req, res) => {
   console.log(`Web server listening on port ${PORT}`);
 });
 
-const BOT_TOKEN = "8742220662:AAF1TFHB21TdzaWFHtSMv21gDmLHLgYi--IKE";
+const BOT_TOKEN = "8742220662:AAGea3_swDL-z6-wweGwJAFjcwGyEkK13X8";
 const GROQ_KEY = "gsk_dI8kkCluzYi9zNW8AaZWGdyb3FYWno9XGvyoiAvdZ12jlS5olBA";
 
 const bot = new Bot(BOT_TOKEN);
