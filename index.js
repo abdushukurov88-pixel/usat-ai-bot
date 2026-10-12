@@ -122,3 +122,9 @@ http.createServer((req, res) => {
   res.write("USAT AI Bot ishlamoqda!");
   res.end();
 }).listen(process.env.PORT || 3000);
+
+const http = require("http");
+http.createServer((req, res) => {
+  res.write("USAT AI Bot is active");
+  res.end();
+}).listen(process.env.PORT || 3000);
