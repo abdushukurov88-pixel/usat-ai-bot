@@ -15,7 +15,7 @@ http.createServer((req, res) => {
 });
 
 const BOT_TOKEN = "8742220662:AAGea3_swDL-z6-wweGwJAFjcwGyEkK13X8";
-const GROQ_KEY = "gsk_dI8kkCluzYi9zNW8AaZWGdyb3FYWno9XGvyoiAvdZ12jlS5olBA";
+const GROQ_KEY = "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";
 
 const bot = new Bot(BOT_TOKEN);
 const groq = new Groq({ apiKey: GROQ_KEY });
