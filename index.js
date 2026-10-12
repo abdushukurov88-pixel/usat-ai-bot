@@ -116,3 +116,9 @@ bot.on("message:text", async (ctx) => {
 
 bot.start();
 console.log("🚀 USAT Mukammal Akademik Boti ishga tushdi!");
+
+const http = require("http");
+http.createServer((req, res) => {
+  res.write("USAT AI Bot ishlamoqda!");
+  res.end();
+}).listen(process.env.PORT || 3000);
