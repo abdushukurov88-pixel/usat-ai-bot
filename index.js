@@ -15,7 +15,7 @@ http.createServer((req, res) => {
 });
 
 // Telegram va OpenAI Kalitlari
-const BOT_TOKEN = "8742220662:AAEOOAAuOEcSCU9jeHJqD_hriW8LVElHnHA"; 
+const BOT_TOKEN = "8742220662:AAEy_gLE6E6E0WDvtMrWpexpi90aLAYhu88"; 
 const OPENAI_API_KEY = "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";
 
 const bot = new Bot(BOT_TOKEN);
