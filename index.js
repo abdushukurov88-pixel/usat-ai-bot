@@ -1,25 +1,27 @@
-const { Bot } = require("grammy");
+const { Bot, webhookCallback } = require("grammy");
 const OpenAI = require("openai");
 const pptxgen = require("pptxgenjs");
 const { Document, Paragraph, TextRun, Packer, HeadingLevel } = require("docx");
 const fs = require("fs");
-const http = require("http");
-
-// Web server (Render keep-alive)
-const PORT = process.env.PORT || 10000;
-http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/plain" });
-  res.end("USAT AI Bot is running!\n");
-}).listen(PORT, () => {
-  console.log(`Web server listening on port ${PORT}`);
-});
+const express = require("express");
 
 // Telegram va OpenAI Kalitlari
-const BOT_TOKEN = "8742220662:AAEy_gLE6E6E0WDvtMrWpexpi90aLAYhu88"; 
-const OPENAI_API_KEY = "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";
+const BOT_TOKEN = "8742220662:AAHVSY_x249tY30hIEtBc1tnJUxhOpZhPY8"; 
+const OPENAI_API_KEY = "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";
 
 const bot = new Bot(BOT_TOKEN);
 const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const app = express();
+
+app.use(express.json());
+
+// Telegram Webhook marshruti
+app.use("/webhook", webhookCallback(bot, "express"));
+
+// Render keep-alive uchun oddiy tekshiruv sahifasi
+app.get("/", (req, res) => {
+  res.send("USAT AI Bot Webhook is running successfully!");
+});
 
 const userNodes = {};
 
@@ -69,7 +71,7 @@ bot.callbackQuery(/^node_/, async (ctx) => {
   await ctx.reply(`✅ Tanlandi: **${mode.toUpperCase()}**\n\nEndi ushbu fan yoki mavzu bo'yicha o'z savolingizni yuboring:`);
 });
 
-// Matnli xabarlarni ChatGPT orqali tahlil qilish
+// Matnli xabarlarni OpenAI orqali tahlil qilish
 bot.on("message:text", async (ctx) => {
   const mode = userNodes[ctx.from.id] || "referat";
   const promptText = ctx.message.text;
@@ -80,7 +82,7 @@ bot.on("message:text", async (ctx) => {
     let systemInstruction = "Siz USAT universiteti uchun akademik yordamchisiz.";
 
     if (mode === "dasturlash") {
-      systemInstruction = "Siz Senior Dasturchi va IT professorisiz. Dasturlash, kod va algoritmlar bo'yicha mukammal akademik yordam bering.";
+      systemInstruction = "Siz Senior Dasturchi va IT professorisiz. Dasturlash, kod va algoritmlar bo'yicha mukammal akademik yordam bereh.";
     } else if (mode === "matematika") {
       systemInstruction = "Siz Oliy Matematika professorisiz. Masalalarni qadamma-qadam va aniq formulalar bilan yechib bering.";
     } else if (mode === "iqtisodiyot") {
@@ -91,7 +93,6 @@ bot.on("message:text", async (ctx) => {
       systemInstruction = "You are an expert English Professor. Provide accurate academic support.";
     }
 
-    // OpenAI (ChatGPT) so'rovi
     const completion = await openai.chat.completions.create({
       messages: [
         { role: "system", content: systemInstruction },
@@ -139,7 +140,6 @@ bot.on("message:text", async (ctx) => {
       await ctx.replyWithDocument({ source: filePath }, { caption: `📄 Tayyor hujjat (${mode.toUpperCase()})` });
       fs.unlinkSync(filePath);
     } else {
-      // Oddiy matn javobi
       await ctx.reply(resultText);
     }
 
@@ -149,5 +149,18 @@ bot.on("message:text", async (ctx) => {
   }
 });
 
-bot.start();
-console.log("🚀 USAT Mukammal Akademik Boti ishga tushdi!");
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, async () => {
+  console.log(`Server running on port ${PORT}`);
+  
+  // Render tashqi URL manzilini avtomatik aniqlab Webhook o'rnatish
+  const renderUrl = process.env.RENDER_EXTERNAL_URL;
+  if (renderUrl) {
+    try {
+      await bot.api.setWebhook(`${renderUrl}/webhook`);
+      console.log(`Webhook successfully set to: ${renderUrl}/webhook`);
+    } catch (err) {
+      console.error("Webhook o'rnatishda xatolik:", err);
+    }
+  }
+});
