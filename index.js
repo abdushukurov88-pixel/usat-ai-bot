@@ -1,16 +1,16 @@
 const { Bot, Keyboard, InlineKeyboard, webhookCallback } = require("grammy");
-const OpenAI = require("openai");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 const pptxgen = require("pptxgenjs");
 const { Document, Paragraph, TextRun, Packer, HeadingLevel } = require("docx");
 const fs = require("fs");
 const express = require("express");
 
-// Bot va API Kalitlari
+// Bot Token va Google Gemini API Kalit
 const BOT_TOKEN = "8996760204:AAGYPitgLKDcig3YCCq-R4D7VK94drwLdi8"; 
-const OPENAI_API_KEY = "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";
+const GEMINI_API_KEY = "AQ.Ab8RN6JL8kN0wJzsiduLwyVnRXYg76ApxZIrCZbMvutXLJjc4g";
 
 const bot = new Bot(BOT_TOKEN);
-const openai = new OpenAI({ apiKey: OPENAI_API_KEY });
+const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 const app = express();
 
 app.use(express.json());
@@ -19,13 +19,13 @@ app.use(express.json());
 app.use("/webhook", webhookCallback(bot, "express"));
 
 app.get("/", (req, res) => {
-  res.send("USAT Custom Academic AI Active!");
+  res.send("USAT Gemini Academic AI Active!");
 });
 
 const userNodes = {};
 
 // 🧠 HAR BIR FAN UCHUN MAXSUS UNIKAL SUN'IY INTELLEKT ROLLARI
-const ADVANCED_AI_AGENTS = {
+const AGENT_SYSTEM_PROMPTS = {
   dasturlash: `Siz USAT universitetining Senior IT Mentorisiz. 
 Sizning vazifangiz:
 1. Talabaga xatosiz, toza va zamonaviy kod (Python, C++, JS, va h.k.) yozib berish.
@@ -73,9 +73,9 @@ const mainKeyboard = new Keyboard()
 // /start
 bot.command("start", async (ctx) => {
   await ctx.reply(
-    "🎓 **USAT NUKAMMAL MULTI-AI AKADEMIK PLATFORMASI**\n\n" +
+    "✨ **USAT GOOGLE GEMINI ACADEMIC PLATFORMASI**\n\n" +
     "━━━━━━━━━━━━━━━━━━━━━━\n" +
-    "Har bir fan bo'yicha alohida moslashtirilgan Sun'iy Intellekt Agenti xizmatingizda!\n\n" +
+    "Tezkor va aqlli **Google Gemini AI** sun'iy intellekti faollashtirildi!\n\n" +
     "👇 Kerakli bo'limni tanlang:",
     { parse_mode: "Markdown", reply_markup: mainKeyboard }
   );
@@ -94,7 +94,7 @@ bot.hears(/Akademik AI/i, async (ctx) => {
 
 bot.hears(/IT & Dasturlash/i, async (ctx) => {
   userNodes[ctx.from.id] = "dasturlash";
-  await ctx.reply("💻 **IT MENTOR AI FAOL!**\n\nKodingizni yuboring yoki dasturlash bo'yicha savolingizni yozing:");
+  await ctx.reply("💻 **GOOGLE GEMINI IT MENTOR FAOL!**\n\nKodingizni yuboring yoki dasturlash bo'yicha savolingizni yozing:");
 });
 
 bot.hears(/Oliy Fanlar/i, async (ctx) => {
@@ -104,11 +104,11 @@ bot.hears(/Oliy Fanlar/i, async (ctx) => {
     .text("⚖️ Huquqshunoslik", "node_huquq")
     .text("🌐 Ingliz Tili", "node_ingliz");
 
-  await ctx.reply("📚 **Qaysi fan bo'yicha AI Professor yordami kerak?** 👇", { reply_markup: inlineMenu });
+  await ctx.reply("📚 **Qaysi fan bo'yicha Gemini Professor yordami kerak?** 👇", { reply_markup: inlineMenu });
 });
 
 bot.hears(/Balans & Referal/i, async (ctx) => {
-  await ctx.reply(`💎 **Balansingiz:** Cheksiz (USAT Talabasi)\n🔗 **Referal link:** https://t.me/USAT_Acade_mic_AI_bot?start=${ctx.from.id}`);
+  await ctx.reply(`💎 **Balansingiz:** Cheksiz (USAT Student)\n🔗 **Referal link:** https://t.me/USAT_Acade_mic_AI_bot?start=${ctx.from.id}`);
 });
 
 bot.hears(/Mening Fayllarim/i, async (ctx) => {
@@ -116,7 +116,7 @@ bot.hears(/Mening Fayllarim/i, async (ctx) => {
 });
 
 bot.hears(/Yordam/i, async (ctx) => {
-  await ctx.reply("ℹ️ **USAT AI Yordam:** @USAT_Support");
+  await ctx.reply("ℹ️ **USAT Gemini AI Yordam:** @USAT_Support");
 });
 
 // Inline Tugmalar
@@ -124,10 +124,10 @@ bot.callbackQuery(/^node_/, async (ctx) => {
   const mode = ctx.callbackQuery.data.replace("node_", "");
   userNodes[ctx.from.id] = mode;
   await ctx.answerCallbackQuery();
-  await ctx.reply(`✅ **${mode.toUpperCase()} AI AGENTI ULANDI!**\n\nEndi mavzu yoki topshiriq matnini yuboring:`);
+  await ctx.reply(`✅ **${mode.toUpperCase()} GEMINI AGENTI ULANDI!**\n\nEndi mavzu yoki topshiriq matnini yuboring:`);
 });
 
-// Sun'iy Intellekt Tahlili va Javob Berish
+// Google Gemini AI orqali Javob Yaratish
 bot.on("message:text", async (ctx) => {
   const promptText = ctx.message.text;
 
@@ -136,20 +136,18 @@ bot.on("message:text", async (ctx) => {
   }
 
   const mode = userNodes[ctx.from.id] || "referat";
-  const systemInstruction = ADVANCED_AI_AGENTS[mode] || "Siz USAT universitetining akademik AI yordamchisiz.";
+  const systemPrompt = AGENT_SYSTEM_PROMPTS[mode] || "Siz USAT universitetining akademik sun'iy intellekt yordamchisiz.";
 
-  await ctx.reply(`⏳ **USAT AI (${mode.toUpperCase()}) tahlil qilmoqda...**`);
+  await ctx.reply(`⏳ **Google Gemini (${mode.toUpperCase()}) tahlil qilmoqda...**`);
 
   try {
-    const completion = await openai.chat.completions.create({
-      messages: [
-        { role: "system", content: systemInstruction },
-        { role: "user", content: promptText }
-      ],
-      model: "gpt-4o-mini",
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      systemInstruction: systemPrompt 
     });
 
-    const resultText = completion.choices[0]?.message?.content || "Javob olinmadi.";
+    const result = await model.generateContent(promptText);
+    const resultText = result.response.text();
 
     // PPTX Slayd
     if (mode === "pptx") {
@@ -185,14 +183,14 @@ bot.on("message:text", async (ctx) => {
       const buffer = await Packer.toBuffer(doc);
       fs.writeFileSync(filePath, buffer);
 
-      await ctx.replyWithDocument({ source: filePath }, { caption: `📄 **Tayyor Akademik Hujjat (${mode.toUpperCase()})**` });
+      await ctx.replyWithDocument({ source: filePath }, { caption: `📄 **Tayyor Hujjat (${mode.toUpperCase()})**` });
       fs.unlinkSync(filePath);
     } else {
       await ctx.reply(resultText);
     }
 
   } catch (error) {
-    console.error("Xatolik:", error);
+    console.error("Gemini Error:", error);
     await ctx.reply("❌ Xatolik yuz berdi. Qaytadan urinib ko'ring.");
   }
 });
