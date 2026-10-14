@@ -5,8 +5,8 @@ const { Document, Paragraph, TextRun, Packer, HeadingLevel } = require("docx");
 const fs = require("fs");
 const express = require("express");
 
-// Telegram va OpenAI Kalitlari
-const BOT_TOKEN = "8742220662:AAHVSY_x249tY30hIEtBc1tnJUxhOpZhPY8"; 
+// Yangi Bot Tokeni va OpenAI Kaliti
+const BOT_TOKEN = "8996760204:AAGYPitgLKDcig3YCCq-R4D7VK94drwLdi8"; 
 const OPENAI_API_KEY = "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";
 
 const bot = new Bot(BOT_TOKEN);
@@ -15,12 +15,11 @@ const app = express();
 
 app.use(express.json());
 
-// Telegram Webhook marshruti
+// Webhook marshruti
 app.use("/webhook", webhookCallback(bot, "express"));
 
-// Render keep-alive uchun oddiy tekshiruv sahifasi
 app.get("/", (req, res) => {
-  res.send("USAT AI Bot Webhook is running successfully!");
+  res.send("USAT Academic AI Bot — Webhook Active!");
 });
 
 const userNodes = {};
@@ -28,7 +27,7 @@ const userNodes = {};
 // /start buyrug'i
 bot.command("start", async (ctx) => {
   await ctx.reply(
-    "🎓 **USAT Mukammal Akademik AI Platformasi**\n\nKerakli fan yoki akademik formatni tanlang:",
+    "🎓 **USAT Mukammal Akademik AI Platformasi**\n\nKerakli yo'nalish yoki formatni tanlang:",
     {
       reply_markup: {
         inline_keyboard: [
@@ -42,20 +41,12 @@ bot.command("start", async (ctx) => {
             { text: "🌐 Ingliz tili", callback_data: "node_ingliz" }
           ],
           [
-            { text: "📄 Referat", callback_data: "node_referat" },
-            { text: "📘 Kurs ishi", callback_data: "node_kursishi" }
+            { text: "📄 Referat (.docx)", callback_data: "node_referat" },
+            { text: "📘 Kurs ishi (.docx)", callback_data: "node_kursishi" }
           ],
           [
             { text: "✍️ Essay", callback_data: "node_essay" },
             { text: "📊 Slayd (.pptx)", callback_data: "node_pptx" }
-          ],
-          [
-            { text: "🧪 Laboratoriya", callback_data: "node_laboratoriya" },
-            { text: "❓ Test & Quiz", callback_data: "node_quiz" }
-          ],
-          [
-            { text: "🎓 BMI / Bitiruv", callback_data: "node_bmi" },
-            { text: "📚 Glossariy", callback_data: "node_glossariy" }
           ]
         ]
       }
@@ -63,34 +54,28 @@ bot.command("start", async (ctx) => {
   );
 });
 
-// Tugmalar uchun ishlovchi
 bot.callbackQuery(/^node_/, async (ctx) => {
   const mode = ctx.callbackQuery.data.replace("node_", "");
   userNodes[ctx.from.id] = mode;
   await ctx.answerCallbackQuery();
-  await ctx.reply(`✅ Tanlandi: **${mode.toUpperCase()}**\n\nEndi ushbu fan yoki mavzu bo'yicha o'z savolingizni yuboring:`);
+  await ctx.reply(`✅ Tanlandi: **${mode.toUpperCase()}**\n\nMavzu yoki savolingizni yuboring:`);
 });
 
-// Matnli xabarlarni OpenAI orqali tahlil qilish
 bot.on("message:text", async (ctx) => {
   const mode = userNodes[ctx.from.id] || "referat";
   const promptText = ctx.message.text;
 
-  await ctx.reply("⏳ USAT sun'iy intellekti tahlil qilmoqda...");
+  await ctx.reply("⏳ USAT AI tahlil qilmoqda...");
 
   try {
     let systemInstruction = "Siz USAT universiteti uchun akademik yordamchisiz.";
 
     if (mode === "dasturlash") {
-      systemInstruction = "Siz Senior Dasturchi va IT professorisiz. Dasturlash, kod va algoritmlar bo'yicha mukammal akademik yordam bereh.";
+      systemInstruction = "Siz IT va Dasturlash professorisiz. Aniq kod va tushuntirishlar bering.";
     } else if (mode === "matematika") {
-      systemInstruction = "Siz Oliy Matematika professorisiz. Masalalarni qadamma-qadam va aniq formulalar bilan yechib bering.";
+      systemInstruction = "Siz Oliy Matematika professorisiz. Masalalarni bosqichma-bosqich yeching.";
     } else if (mode === "iqtisodiyot") {
-      systemInstruction = "Siz Iqtisodiyot va Moliya professorisiz. Moliyaviy va iqtisodiy tahlillarni akademik tilda tushuntiring.";
-    } else if (mode === "huquq") {
-      systemInstruction = "Siz Huquqshunoslik professorisiz. Qonunchilik va huquqiy mantiq bo'yicha tahlil bering.";
-    } else if (mode === "ingliz") {
-      systemInstruction = "You are an expert English Professor. Provide accurate academic support.";
+      systemInstruction = "Siz Iqtisodiyot va Moliya bo'yicha ekspertsiz.";
     }
 
     const completion = await openai.chat.completions.create({
@@ -103,7 +88,6 @@ bot.on("message:text", async (ctx) => {
 
     const resultText = completion.choices[0]?.message?.content || "Javob olinmadi.";
 
-    // Slayd (.pptx)
     if (mode === "pptx") {
       const filePath = `./USAT_${ctx.from.id}.pptx`;
       let pptx = new pptxgen();
@@ -112,7 +96,7 @@ bot.on("message:text", async (ctx) => {
       slides.forEach((content) => {
         if (content.trim()) {
           let slide = pptx.addSlide();
-          let lines = content.trim().split("\n");
+          let lines = content.trim().splitynth = content.trim().split("\n");
           slide.addText(lines[0], { x: 0.5, y: 0.5, w: "90%", fontSize: 20, bold: true });
           slide.addText(lines.slice(1).join("\n"), { x: 0.5, y: 1.5, w: "90%", h: "70%", fontSize: 12 });
         }
@@ -122,8 +106,7 @@ bot.on("message:text", async (ctx) => {
       await ctx.replyWithDocument({ source: filePath }, { caption: "📊 Tayyor Slayd (.pptx)" });
       fs.unlinkSync(filePath);
     } 
-    // Word (.docx) hujjatlar
-    else if (["referat", "kursishi", "essay", "bmi"].includes(mode)) {
+    else if (["referat", "kursishi", "essay"].includes(mode)) {
       const filePath = `./USAT_${mode.toUpperCase()}_${ctx.from.id}.docx`;
       let doc = new Document({
         sections: [{
@@ -144,7 +127,7 @@ bot.on("message:text", async (ctx) => {
     }
 
   } catch (error) {
-    console.error("Xatolik tafsiloti:", error);
+    console.error("Xatolik:", error);
     await ctx.reply("❌ Xatolik yuz berdi. Qaytadan urinib ko'ring.");
   }
 });
@@ -152,8 +135,6 @@ bot.on("message:text", async (ctx) => {
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, async () => {
   console.log(`Server running on port ${PORT}`);
-  
-  // Render tashqi URL manzilini avtomatik aniqlab Webhook o'rnatish
   const renderUrl = process.env.RENDER_EXTERNAL_URL;
   if (renderUrl) {
     try {
