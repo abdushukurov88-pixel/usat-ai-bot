@@ -19,106 +19,154 @@ app.use(express.json());
 app.use("/webhook", webhookCallback(bot, "express"));
 
 app.get("/", (req, res) => {
-  res.send("USAT Academic AI Bot — Webhook Active!");
+  res.send("USAT Premium Academic AI Bot — Active!");
 });
 
 const userNodes = {};
 
-// Asosiy Pastki Menyuni Yaratish (Reply Keyboard)
+// 📱 Asosiy Doimiy Menyu (Reply Keyboard)
 const mainKeyboard = new Keyboard()
-  .text("✨ Slayd va hujjat yaratish").row()
-  .text("🎁 Namuna").text("🗂 Universal konverter").row()
-  .text("💸 Narxlar").text("💰 Balans & Referal").row()
-  .text("📁 Mening fayllarim").text("⚙️ Sozlamalar")
+  .text("🚀 Akademik AI (Slayd va Hujjat)").row()
+  .text("💻 IT & Dasturlash").text("📚 Oliy Fanlar").row()
+  .text("🗂 Fayl Konverter").text("📂 Mening Fayllarim").row()
+  .text("💎 Balans & Referal").text("ℹ️ Yordam & Sozlamalar")
   .resized();
 
 // /start buyrug'i
 bot.command("start", async (ctx) => {
-  await ctx.reply(
-    "🎓 **USAT Mukammal Akademik AI Platformasiga Xush Kelibsiz!**\n\nKerakli bo'limni pastdagi menyudan tanlang 👇",
-    { reply_markup: mainKeyboard }
-  );
+  const welcomeText = `✨ **USAT PREMIUM ACADEMIC AI PLATFORMASIGA XUSH KELIBSIZ!**\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `🎓 Siz bu bot orqali akademik topshiriqlar, slaydlar, referat va IT dasturlash bo'yicha sun'iy intellekt yordamini olishingiz mumkin.\n\n` +
+    `👇 **Kerakli bo'limni pastdagi menyudan tanlang:**`;
+
+  await ctx.reply(welcomeText, {
+    parse_mode: "Markdown",
+    reply_markup: mainKeyboard
+  });
 });
 
-// Asosiy Menyudagi Tugmalar Reaksiyasi
-bot.hears("✨ Slayd va hujjat yaratish", async (ctx) => {
+// 🚀 Akademik AI Bo'limi
+bot.hears("🚀 Akademik AI (Slayd va Hujjat)", async (ctx) => {
   const inlineMenu = new InlineKeyboard()
-    .text("💻 Dasturlash & Kod", "node_dasturlash").row()
-    .text("🏛 Oliy Matematika", "node_matematika").text("📊 Iqtisodiyot", "node_iqtisodiyot").row()
-    .text("📄 Referat (.docx)", "node_referat").text("📘 Kurs ishi (.docx)", "node_kursishi").row()
-    .text("✍️ Essay", "node_essay").text("📊 Slayd (.pptx)", "node_pptx");
+    .text("📊 Slayd / Taqdimot (.pptx)", "node_pptx").row()
+    .text("📄 Referat Tayyorlash (.docx)", "node_referat").row()
+    .text("📘 Kurs Ishi (.docx)", "node_kursishi").row()
+    .text("🎓 BMI / Bitiruv Ishi", "node_bmi").row()
+    .text("✍️ Akademik Insho / Essay", "node_essay");
 
-  await ctx.reply("Nima yaratmoqchisiz? Kerakli formatni tanlang 👇", {
-    reply_markup: inlineMenu,
-  });
+  const msg = `✨ **AKADEMIK HUJJAT YARATISH BO'LIMI**\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `Qaysi turdagi akademik hujjatni tayyorlamoqchisiz?\n` +
+    `Kerakli formatni tanlang 👇`;
+
+  await ctx.reply(msg, { parse_mode: "Markdown", reply_markup: inlineMenu });
 });
 
-bot.hears("🗂 Universal konverter", async (ctx) => {
-  const converterMenu = new InlineKeyboard()
-    .text("📄 Word/PPT dan PDF", "conv_doc2pdf").row()
-    .text("🖼 Rasmlardan PDF", "conv_img2pdf").row()
-    .text("🔗 PDF larni birlashtirish", "conv_mergepdf").row()
-    .text("📦 Fayllarni arxivlash (ZIP)", "conv_zip");
+// 💻 IT va Dasturlash
+bot.hears("💻 IT & Dasturlash", async (ctx) => {
+  userNodes[ctx.from.id] = "dasturlash";
+  const msg = `💻 **IT VA DASTURLASH YORDAMCHISI FAOL!**\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `Manga istalgan dasturlash tili (Python, C++, JavaScript va b.) bo'yicha kodingizni yuboring yoki algoritmlar bo'yicha savolingizni yozing:`;
 
-  await ctx.reply("Fayllaringizni bir formatdan boshqasiga o'g'iraman. Nima qilmoqchisiz? 👇", {
-    reply_markup: converterMenu,
-  });
+  await ctx.reply(msg, { parse_mode: "Markdown" });
 });
 
-bot.hears("🎁 Namuna", async (ctx) => {
-  await ctx.reply("📚 **Namuna bo'limi:**\nBot orqali tayyorlangan namunaviy Referat, Kurs ishi va Taqdimotlarni yuklab olishingiz mumkin.");
+// 📚 Oliy Fanlar
+bot.hears("📚 Oliy Fanlar", async (ctx) => {
+  const inlineMenu = new InlineKeyboard()
+    .text("🏛 Oliy Matematika", "node_matematika")
+    .text("📊 Iqtisodiyot & Moliya", "node_iqtisodiyot").row()
+    .text("⚖️ Huquqshunoslik", "node_huquq")
+    .text("🌐 Ingliz Tili Akademik", "node_ingliz");
+
+  const msg = `📚 **OLIY FANLAR BO'YICHA PROFESSOR AI**\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `Qaysi fan bo'yicha chuqur tahlil va yordam kerak? 👇`;
+
+  await ctx.reply(msg, { parse_mode: "Markdown", reply_markup: inlineMenu });
 });
 
-bot.hears("💸 Narxlar", async (ctx) => {
-  await ctx.reply("💳 **Xizmat narxlari:**\n- AI Referat / Kurs ishi: Bepul\n- AI Slayd (.pptx): Bepul");
+// 🗂 Fayl Konverter
+bot.hears("🗂 Fayl Konverter", async (ctx) => {
+  const inlineMenu = new InlineKeyboard()
+    .text("📄 Word / PPT -> PDF", "conv_pdf").row()
+    .text("🖼 Rasmlarni PDF ga aylantirish", "conv_imgpdf").row()
+    .text("📦 Fayllarni ZIP qilish", "conv_zip");
+
+  const msg = `🗂 **UNIVERSAL FAYL KONVERTER**\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `Fayllaringizni tez va sifatli qayta ishlash uchun xizmatni tanlang 👇`;
+
+  await ctx.reply(msg, { parse_mode: "Markdown", reply_markup: inlineMenu });
 });
 
-bot.hears("💰 Balans & Referal", async (ctx) => {
-  await ctx.reply("👤 **Sizning balansingiz:** 0 so'm\n🔗 **Referal havolangiz:** `https://t.me/USAT_Acade_mic_AI_bot?start=" + ctx.from.id + "`");
+// 💎 Balans & Referal
+bot.hears("💎 Balans & Referal", async (ctx) => {
+  const msg = `💎 **SIZNING SHAXSIY BALANSINGIZ**\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `👤 **Foydalanuvchi:** ${ctx.from.first_name}\n` +
+    `💳 **Hisobingiz:** Unlimited (USAT Talabasi)\n` +
+    `🎁 **Aktiv referallaringiz:** 0 ta\n\n` +
+    `🔗 **Sizning taklif havolangiz:**\n` +
+    `\`https://t.me/USAT_Acade_mic_AI_bot?start=${ctx.from.id}\``;
+
+  await ctx.reply(msg, { parse_mode: "Markdown" });
 });
 
-bot.hears("📁 Mening fayllarim", async (ctx) => {
-  await ctx.reply("📁 Siz hali hech qanday hujjat yaratmadingiz.");
+// 📂 Mening Fayllarim
+bot.hears("📂 Mening Fayllarim", async (ctx) => {
+  await ctx.reply("📁 **Sizning saqlangan fayllaringiz ro'yxati bo'sh.**", { parse_mode: "Markdown" });
 });
 
-bot.hears("⚙️ Sozlamalar", async (ctx) => {
-  await ctx.reply("⚙️ **Sozlamalar:** Til: O'zbek tili");
+// ℹ️ Yordam
+bot.hears("ℹ️ Yordam & Sozlamalar", async (ctx) => {
+  const msg = `ℹ️ **USAT AI YORDAM MARKAZI**\n\n` +
+    `━━━━━━━━━━━━━━━━━━━━━━\n` +
+    `Ushbu bot USAT universiteti talabalari uchun akademik va amaliy yordam berish uchun yaratilgan.\n\n` +
+    `⚙️ **Sozlama:** Til — O'zbek tili (Lotin)\n` +
+    `👨‍💻 **Dasturchi va Qo'llab-quvvatlash:** @USAT_Support`;
+
+  await ctx.reply(msg, { parse_mode: "Markdown" });
 });
 
-// Inline Tugmalar Boshqaruvi
+// Inline Tugmalar uchun Ishlovchi
 bot.callbackQuery(/^node_/, async (ctx) => {
   const mode = ctx.callbackQuery.data.replace("node_", "");
   userNodes[ctx.from.id] = mode;
   await ctx.answerCallbackQuery();
-  await ctx.reply(`✅ Tanlandi: **${mode.toUpperCase()}**\n\nEndi mavzu yoki topshiriq matnini yuboring:`);
+
+  await ctx.reply(`✅ Tanlandi: **${mode.toUpperCase()}**\n\n✍️ Endi ushbu mavzu yoki topshiriq bo'yicha batafsil ma'lumot/savol yuboring:`, {
+    parse_mode: "Markdown"
+  });
 });
 
 bot.callbackQuery(/^conv_/, async (ctx) => {
   await ctx.answerCallbackQuery();
-  await ctx.reply("📥 Ushbu amal uchun fayllaringizni yuboring:");
+  await ctx.reply("📥 **Faylingizni yuboring:**", { parse_mode: "Markdown" });
 });
 
-// Matnli Xabar Tahlili va Hujjat Generatsiyasi
+// Matnlarni AI orqali tahlil qilish va Hujjat Yaratish
 bot.on("message:text", async (ctx) => {
   const mode = userNodes[ctx.from.id] || "referat";
   const promptText = ctx.message.text;
 
-  // Agar bosilgan tekst menyu tugmasi bo'lsa, AI ga so'rov yubormaymiz
+  // Menyu tugmalari bo'lsa AI ga yubormaslik
   const systemButtons = [
-    "✨ Slayd va hujjat yaratish", "🎁 Namuna", "🗂 Universal konverter",
-    "💸 Narxlar", "💰 Balans & Referal", "📁 Mening fayllarim", "⚙️ Sozlamalar"
+    "🚀 Akademik AI (Slayd va Hujjat)", "💻 IT & Dasturlash", "📚 Oliy Fanlar",
+    "🗂 Fayl Konverter", "📂 Mening Fayllarim", "💎 Balans & Referal", "ℹ️ Yordam & Sozlamalar"
   ];
   if (systemButtons.includes(promptText)) return;
 
-  await ctx.reply("⏳ USAT AI tahlil qilmoqda va hujjat tayyorlamoqda...");
+  await ctx.reply("⏳ **USAT AI akademik ma'lumotlarni tahlil qilmoqda va hujjatni tayyorlamoqda...**", { parse_mode: "Markdown" });
 
   try {
-    let systemInstruction = "Siz USAT akademiyasining mutaxassis yordamchisiz.";
+    let systemInstruction = "Siz USAT universitetining yuqori darajali akademik sun'iy intellektisiz.";
 
     if (mode === "dasturlash") {
-      systemInstruction = "Siz IT va Dasturlash professorisiz. Aniq kod va tushuntirishlar bering.";
+      systemInstruction = "Siz Senior IT Dasturchisiz. Kodingizni toza, xatosiz va tushuntirishlar bilan taqdim eting.";
     } else if (mode === "matematika") {
-      systemInstruction = "Siz Oliy Matematika professorisiz. Masalalarni bosqichma-bosqich yeching.";
+      systemInstruction = "Siz Oliy Matematika professorisiz. Formula va yechimlarni bosqichma-bosqich ko'rsating.";
     }
 
     const completion = await openai.chat.completions.create({
@@ -131,6 +179,7 @@ bot.on("message:text", async (ctx) => {
 
     const resultText = completion.choices[0]?.message?.content || "Javob olinmadi.";
 
+    // Slayd (.pptx)
     if (mode === "pptx") {
       const filePath = `./USAT_${ctx.from.id}.pptx`;
       let pptx = new pptxgen();
@@ -140,16 +189,17 @@ bot.on("message:text", async (ctx) => {
         if (content.trim()) {
           let slide = pptx.addSlide();
           let lines = content.trim().split("\n");
-          slide.addText(lines[0], { x: 0.5, y: 0.5, w: "90%", fontSize: 20, bold: true });
-          slide.addText(lines.slice(1).join("\n"), { x: 0.5, y: 1.5, w: "90%", h: "70%", fontSize: 12 });
+          slide.addText(lines[0], { x: 0.5, y: 0.5, w: "90%", fontSize: 20, bold: true, color: "003366" });
+          slide.addText(lines.slice(1).join("\n"), { x: 0.5, y: 1.5, w: "90%", h: "70%", fontSize: 13 });
         }
       });
 
       await pptx.writeFile({ fileName: filePath });
-      await ctx.replyWithDocument({ source: filePath }, { caption: "📊 Tayyor Slayd (.pptx)" });
+      await ctx.replyWithDocument({ source: filePath }, { caption: "📊 **USAT AI tomonidan tayyorlangan slayd!**" });
       fs.unlinkSync(filePath);
     } 
-    else if (["referat", "kursishi", "essay"].includes(mode)) {
+    // Word (.docx) Hujjatlar
+    else if (["referat", "kursishi", "essay", "bmi"].includes(mode)) {
       const filePath = `./USAT_${mode.toUpperCase()}_${ctx.from.id}.docx`;
       let doc = new Document({
         sections: [{
@@ -163,28 +213,28 @@ bot.on("message:text", async (ctx) => {
       const buffer = await Packer.toBuffer(doc);
       fs.writeFileSync(filePath, buffer);
 
-      await ctx.replyWithDocument({ source: filePath }, { caption: `📄 Tayyor hujjat (${mode.toUpperCase()})` });
+      await ctx.replyWithDocument({ source: filePath }, { caption: `📄 **Tayyor Akademik Hujjat (${mode.toUpperCase()})**` });
       fs.unlinkSync(filePath);
     } else {
-      await ctx.reply(resultText);
+      await ctx.reply(resultText, { parse_mode: "Markdown" });
     }
 
   } catch (error) {
     console.error("Xatolik:", error);
-    await ctx.reply("❌ Xatolik yuz berdi. Qaytadan urinib ko'ring.");
+    await ctx.reply("❌ **Xatolik yuz berdi. Iltimos qaytadan urinib ko'ring.**");
   }
 });
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, async () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server listening on port ${PORT}`);
   const renderUrl = process.env.RENDER_EXTERNAL_URL;
   if (renderUrl) {
     try {
       await bot.api.setWebhook(`${renderUrl}/webhook`);
-      console.log(`Webhook successfully set to: ${renderUrl}/webhook`);
+      console.log(`Webhook set to: ${renderUrl}/webhook`);
     } catch (err) {
-      console.error("Webhook o'rnatishda xatolik:", err);
+      console.error("Webhook error:", err);
     }
   }
 });
